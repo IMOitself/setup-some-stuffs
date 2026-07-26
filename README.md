@@ -1,3 +1,5 @@
+<div align=center><h1>setup anything :D</h1></div>
+
 <details>
 <summary><h1>setup laravel</h1></summary>
 
@@ -40,7 +42,6 @@ php artisan migrate
 
 </details>
 
-<br>
 <details>
 <summary><h1>setup adb</h1></summary>
 
