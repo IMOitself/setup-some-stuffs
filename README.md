@@ -1,3 +1,5 @@
+<details>
+<summary><h1>setup laravel</h1></summary>
 
 ## install php (`Single Line Installer`) [link](https://www.php.net/downloads.php):
 
@@ -27,7 +29,7 @@ composer global require laravel/installer
 ```
 
 ## install nodejs
-![](image.png)
+![](install-nodejs.png)
 
 ## usage
 create project:
@@ -36,3 +38,14 @@ laravel new my-app
 php artisan migrate
 ```
 
+</details>
+
+<br>
+<details>
+<summary><h1>setup adb</h1></summary>
+
+```
+winget install Google.PlatformTools
+```
+
+</details>
