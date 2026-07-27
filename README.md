@@ -50,3 +50,39 @@ winget install Google.PlatformTools
 ```
 
 </details>
+
+<details>
+<summary><h1>deploy react in github</h1></summary>
+
+on your react project:
+```
+npm install gh-pages --save-dev
+```
+at the top level of `package.json`:
+```json
+"homepage": "https://your-github-username.github.io/your-repo-name",
+```
+on the scripts section of `package.json`:
+```json
+"scripts": {
+  // ... ur existing scripts
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d dist",
+  // "deploy": "gh-pages -d build", // use this instead if ur not using vite
+}
+```
+(skip this if ur not using vite) add this on `defineConfig()` function in `vite.config.js`:
+```js
+// ... code above
+export default defineConfig({
+  // ...
+  base: '/your-repo-name/',
+  // ...
+})
+```
+deploy the app:
+```
+npm run deploy
+```
+
+</details>
