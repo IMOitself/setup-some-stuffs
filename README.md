@@ -102,7 +102,11 @@ npm run build
 ```
 1. go to [Google Cloud Console](https://console.cloud.google.com/).
 2. ensure ur signed in with the exact same Google account u used for `firebase login`.
-3. TODO: image on how to create project
+click "get started by blah blah"
+<img width="1829" height="910" alt="image" src="https://github.com/user-attachments/assets/74afad29-19ba-4903-9669-10d57fad2b43" />
+enter project name and proceed until its been created
+<img width="1901" height="902" alt="image" src="https://github.com/user-attachments/assets/09ea2705-e3c4-4367-923a-a2eec0d3b4cf" />
+
 <br><br>
 do the stuffs above first before the code below<br>*i see u, u copy and paster >:D*
 ```
@@ -113,7 +117,6 @@ when it asks:
 - set public directory to `dist` (or `build` if ur not using vite)
 - configure as a single-page app: yes
 - set up automatic builds with GitHub: no (unless u want that)
-deploy the app:
 ```
 firebase deploy --only hosting
 ```
