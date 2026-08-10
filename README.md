@@ -86,3 +86,35 @@ npm run deploy
 ```
 
 </details>
+
+<details>
+
+<summary><h1>deploy react to firebase</h1></summary>
+
+```
+npm install -g firebase-tools
+```
+```
+firebase login
+```
+```
+npm run build
+```
+1. go to [Google Cloud Console](https://console.cloud.google.com/).
+2. ensure ur signed in with the exact same Google account u used for `firebase login`.
+3. TODO: image on how to create project
+<br><br>
+do the stuffs above first before the code below<br>*i see u, u copy and paster >:D*
+```
+firebase init hosting
+```
+when it asks:
+- select existing project
+- set public directory to `dist` (or `build` if ur not using vite)
+- configure as a single-page app: yes
+- set up automatic builds with GitHub: no (unless u want that)
+deploy the app:
+```
+firebase deploy --only hosting
+```
+</details>
