@@ -52,7 +52,7 @@ winget install Google.PlatformTools
 </details>
 
 <details>
-<summary><h1>deploy react in github</h1></summary>
+<summary><h1>deploy react to github</h1></summary>
 
 on your react project:
 ```
