@@ -121,3 +121,85 @@ when it asks:
 firebase deploy --only hosting
 ```
 </details>
+
+<details>
+<summary><h1>generate android kotlin project</h1></summary>
+
+super minimal, barebones kind of project
+
+download [generate_android_project.py](https://github.com/IMOitself/setup-some-stuffs/blob/main/generate_android_project.py)
+
+```bash
+python generate_android_project.py --output MyApp --package com.example.myapp --name "My App"
+```
+
+u know what to edit in the command obviously.
+
+
+</details>
+
+<details>
+<summary><h1>build android kotlin project</h1></summary>
+
+install all tools without having to install a single program on ur computer
+
+`cd` into the project folder, then run:
+
+- run these 2 code snippets **ONCE**
+```powershell
+curl.exe -L -o gradle-9.7.0-bin.zip https://services.gradle.org/distributions/gradle-9.7.0-bin.zip
+curl.exe -L -o jdk-21.0.12+8.zip https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.zip
+curl.exe -L -o commandlinetools-win.zip https://dl.google.com/android/repository/commandlinetools-win-15859902_latest.zip
+
+mkdir temp_build\gradle
+mkdir temp_build\jdk
+mkdir temp_build\android-sdk
+
+tar -xf gradle-9.7.0-bin.zip -C temp_build\gradle
+tar -xf jdk-21.0.12+8.zip -C temp_build\jdk
+tar -xf commandlinetools-win.zip -C temp_build\android-sdk
+```
+
+```powershell
+mkdir temp_build\android-sdk\cmdline-tools\latest
+move temp_build\android-sdk\cmdline-tools\bin temp_build\android-sdk\cmdline-tools\latest\bin
+move temp_build\android-sdk\cmdline-tools\lib temp_build\android-sdk\cmdline-tools\latest\lib
+move temp_build\android-sdk\cmdline-tools\NOTICE.txt temp_build\android-sdk\cmdline-tools\latest\NOTICE.txt
+move temp_build\android-sdk\cmdline-tools\source.properties temp_build\android-sdk\cmdline-tools\latest\source.properties
+```
+
+- run these 2 code snippets **whenever** ur gonna build the app
+```powershell
+$env:JAVA_HOME="$PWD\temp_build\jdk\jdk-21.0.12+8"
+$env:ANDROID_HOME="$PWD\temp_build\android-sdk"
+
+1..20 | ForEach-Object { "y" } | & "$PWD\temp_build\android-sdk\cmdline-tools\latest\bin\sdkmanager.bat" --licenses
+& "$PWD\temp_build\android-sdk\cmdline-tools\latest\bin\sdkmanager.bat" "platform-tools" "platforms;android-37.0"
+```
+```powershell
+& "$PWD\temp_build\gradle\gradle-9.7.0\bin\gradle.bat" assembleRelease
+```
+
+Use `assembleDebug` instead of `assembleRelease` for a debug build. Note that
+`$env:JAVA_HOME` / `$env:ANDROID_HOME` only last for the current terminal
+session — set them again (the two lines above) if you open a new terminal.
+
+The built APK will be located at:
+```
+app\build\outputs\apk\release\app-release-unsigned.apk
+app\build\outputs\apk\debug\app-debug.apk
+```
+
+## signing:
+do this once:
+```
+keytool -genkeypair -v -keystore imo-tvbrowser-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias imo-tvbrowser-key
+```
+do this after u compiled the apk:
+```powershell
+.\temp_build\android-sdk\build-tools\36.0.0\apksigner.bat sign --ks <anything-idk>.jks --ks-key-alias <anything-idk> --out app-release-signed.apk ".\app\build\outputs\apk\release\app-release-unsigned.apk"
+```
+
+**WAIT**, change the `<anything-idk>` to whatever u want obviously
+
+</details>
