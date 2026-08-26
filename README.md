@@ -52,6 +52,33 @@ winget install Google.PlatformTools
 </details>
 
 <details>
+<summary><h1>setup tailwind on react</h1></summary>
+
+if ur using vite:
+
+```bash
+npm install tailwindcss @tailwindcss/vite
+```
+
+`vite.config.js`
+```js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+})
+```
+
+`src/index.css`:
+```css
+@import "tailwindcss";
+```
+
+</details>
+
+<details>
 <summary><h1>deploy react to github</h1></summary>
 
 on your react project:
