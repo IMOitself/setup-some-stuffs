@@ -51,6 +51,7 @@ winget install Google.PlatformTools
 
 </details>
 
+
 <details>
 <summary><h1>setup tailwind on react</h1></summary>
 
@@ -74,6 +75,64 @@ export default defineConfig({
 `src/index.css`:
 ```css
 @import "tailwindcss";
+```
+
+</details>
+
+<details>
+<summary><h1>setup routes on react</h1></summary>
+
+```bash
+npm install react-router-dom
+```
+
+wrap your app with `<BrowserRouter>`
+`main.jsx` (or `index.jsx`)
+```jsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>
+);
+```
+
+`App.jsx`
+```jsx
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import About from "./pages/About";
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+    </Routes>
+  );
+}
+
+export default App;
+```
+
+navigate between them ex:
+```jsx
+import { Link } from "react-router-dom";
+
+function Home() {
+  return (
+    <div>
+      <h1>Home</h1>
+      <Link to="/about"><button>Go to About</button></Link>
+    </div>
+  );
+}
 ```
 
 </details>
