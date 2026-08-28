@@ -138,7 +138,7 @@ function Home() {
 </details>
 
 <details>
-<summary><h1>setup roles on react + laravel</h1></summary>
+<summary><h1>setup roles, login, register on react + laravel</h1></summary>
 
 ## backend
 ```
@@ -146,31 +146,13 @@ php artisan make:migration add_role_to_users_table --table=users
 ```
 
 ```php
-// database/migrations/xxxx_add_role_to_users_table.php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            // add this
-            $table->string('role')->default('guest'); // admin, guest
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            // add this
-            $table->dropColumn('role');
-        });
-    }
-};
+// database/migrations/xxxx_create_users_table.php
+Schema::create('users', function (Blueprint $table) {
+    //...
+    // add something like this idk
+    $table->enum('role', ['student', 'member', 'officer', 'anim'])->default('student');
+    //...
+});
 ```
 ```php
 // app/Models/User.php
@@ -191,12 +173,15 @@ public function hasRole(string $role): bool
 php artisan make:controller AuthController
 ```
 ```php
-<?php
 
+<?php
+// app/Http/Controllers/AuthController.php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -216,6 +201,28 @@ class AuthController extends Controller
         return response()->json([
             'token' => $token,
             'user'  => $request->user()->only('id', 'name', 'email', 'role'),
+        ]);
+    }
+
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name'     => 'required|string',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:8',
+        ]);
+
+        $user = User::create([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user'  => $user->only('id', 'name', 'email', 'role'),
         ]);
     }
 
@@ -273,6 +280,7 @@ class RoleMiddleware
 use App\Http\Controllers\AuthController;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -345,7 +353,6 @@ import AuthProvider from './contexts/AuthContext.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      // wrap it with AuthProvider
       <AuthProvider>
         <App />
       </AuthProvider>
