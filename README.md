@@ -138,253 +138,180 @@ function Home() {
 </details>
 
 <details>
-<summary><h1>setup roles, login, register on react + laravel</h1></summary>
+<summary><h1>setup login and register on react + laravel</h1></summary>
 
+assuming u already setup axios and sanctum idk
 ## backend
-```
-php artisan make:migration add_role_to_users_table --table=users
-```
-
-```php
-// database/migrations/xxxx_create_users_table.php
-Schema::create('users', function (Blueprint $table) {
-    //...
-    // add something like this idk
-    $table->enum('role', ['student', 'member', 'officer', 'anim'])->default('student');
-    //...
-});
-```
+- make sure app/Models/User.php has these:
 ```php
 // app/Models/User.php
-
-#[Fillable(['name', 'email', 'password', 'role'])]  // add role
-
-// add these (u know where)
-public function isAdmin(): bool
+//...
+use Laravel\Sanctum\HasApiTokens;
+//...
+class User extends Authenticatable
 {
-    return $this->role === 'admin';
-}
-public function hasRole(string $role): bool
-{
-    return $this->role === $role;
+    use HasApiTokens, HasFactory, Notifiable;
+    // ...
 }
 ```
 ```
 php artisan make:controller AuthController
 ```
 ```php
-
-<?php
 // app/Http/Controllers/AuthController.php
+<?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $token = $request->user()->createToken('auth-token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user'  => $request->user()->only('id', 'name', 'email', 'role'),
-        ]);
-    }
-
-    public function register(Request $request)
-    {
-        $data = $request->validate([
-            'name'     => 'required|string',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:8',
+    public function register(Request $request){
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
         ]);
 
         $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'user' => $user,
             'token' => $token,
-            'user'  => $user->only('id', 'name', 'email', 'role'),
+        ], 201);
+    }
+
+    public function login(Request $request){
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
         ]);
     }
 
-    public function user(Request $request)
-    {
-        return response()->json($request->user()->only('id', 'name', 'email', 'role'));
-    }
-
-    public function logout(Request $request)
-    {
+    public function logout(Request $request){
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out']);
+
+        return response()->json(['message' => 'Logged out'], 200);
+    }
+
+    public function user(Request $request){
+        return response()->json($request->user());
     }
 }
 ```
-```
-php artisan make:middleware RoleMiddleware
-```
-```php
-// app/Http/Middleware/RoleMiddleware.php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-
-class RoleMiddleware
-{
-    public function handle(Request $request, Closure $next, string ...$roles): Response
-    {
-        if (!$request->user() || !in_array($request->user()->role, $roles)) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-        return $next($request);
-    }
-}
-```
-```php
-// bootstrap/app.php
-//...
-->withMiddleware(function ($middleware) {
-    // add this
-    $middleware->alias([
-        'role' => \App\Http\Middleware\RoleMiddleware::class,
-    ]);
-})
-//...
-```
-```php
-// routes/api.php
-//...
-// add these
-use App\Http\Controllers\AuthController;
-
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
-    // TODO: add routes here that the not logged in users should not see
-
-    Route::middleware('role:admin')->group(function () {
-        // TODO: Add admin routes here
-    });
-});
-```
-
 ## frontend
-```jsx
-// src/contexts/AuthContext.jsx
-import { createContext, useContext, useState, useEffect } from 'react';
+```
+// src/api/axios.js
 import axios from 'axios';
 
-const AuthContext = createContext(null);
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  headers: {
+    Accept: 'application/json',
+  },
+});
 
-export default function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Attach the token to every request automatically, once logged in
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.get('/api/user', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then(res => setUser(res.data))
-        .catch(() => localStorage.removeItem('token'))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+export default api;
+```
+```
+// src/pages/LoginRegister.jsx
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
+
+export default function Login() {
+    const navigate = useNavigate();
+
+    const NAME = 'Levi Ackerman'
+    const EMAIL = 'levi.ackerman@gmail.com'
+    const PASSWORD = 'shinzousasageyo'
+
+    const testLogin = () => {
+        api
+            .post("/login", {
+                name: NAME,
+                email: EMAIL,
+                password: PASSWORD,
+            })
+            .then((res) => {
+                localStorage.setItem('token', res.data.token);
+                console.log(res.data)
+                // navigate('/');
+            })
+            .catch((err) => console.error(err));
     }
-  }, []);
 
-  const login = async (email, password) => {
-    const res = await axios.post('/api/login', { email, password });
-    localStorage.setItem('token', res.data.token);
-    setUser(res.data.user);
-  };
+    const testRegister = () => {
+        api
+            .post("/register", {
+                name: NAME_MEMBER,
+                email: EMAIL_MEMBER,
+                password: PASSWORD_MEMBER,
+            })
+            .then((res) => {
+                localStorage.setItem('token', res.data.token);
+                console.log(res.data)
+                // navigate('/');
+            })
+            .catch((err) => console.error(err));
+    }
 
-  const logout = async () => {
-    const token = localStorage.getItem('token');
-    await axios.post('/api/logout', {}, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    localStorage.removeItem('token');
-    setUser(null);
-  };
+    const testLogout = () => {
+        api
+            .post("/logout")
+            .then((res) => {
+                localStorage.removeItem('token');
+                console.log(res.data)
+                navigate('/')
+            })
+            .catch((err) => console.error(err));
+    }
 
-  const hasRole = (role) => user?.role === role;
-
-  return (
-    <AuthContext.Provider value={{ user, loading, login, logout, hasRole }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+        <div className='flex justify-center items-center h-screen flex-col gap-4'>
+            <button onClick={testLogin}> test login as Member</button>
+            <button onClick={testRegister}> test register as Member</button>
+            <button onClick={testLogout}> test logout</button>
+        </div>
+    )
 }
-
-export const useAuth = () => useContext(AuthContext);
 ```
-```jsx
-// src/main.jsx
-...
-import AuthProvider from './contexts/AuthContext.jsx'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>,
-)
-```
-- example usage
-```jsx
-// src/App.jsx
-//...
-import { Routes, Route } from "react-router-dom";
-import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
-  return (
-    <Routes>
-      <Route path="/example" element={
-        <ProtectedRoute>
-          <ForLoggedInUsersPageIdk/>
-        </ProtectedRoute>
-      }/>
-      
-      {/* TODO: add login and register */}
-      {/* <Route path="/login" element={<Login/>}/> */}
-      {/* <Route path="/register" element={<Register/>}/> */}
-    </Routes>
-  )
-}
 
-export default App
-```
+
 
 
 
