@@ -224,7 +224,7 @@ class AuthController extends Controller
 }
 ```
 ## frontend
-```
+```jsx
 // src/api/axios.js
 import axios from 'axios';
 
@@ -246,7 +246,7 @@ api.interceptors.request.use((config) => {
 
 export default api;
 ```
-```
+```jsx
 // src/pages/LoginRegister.jsx
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
