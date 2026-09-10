@@ -366,7 +366,7 @@ firebase login
 ```
 npm run build
 ```
-1. go to [Google Cloud Console](https://console.cloud.google.com/).
+1. go to [firebase console](https://console.firebase.google.com/).
 2. ensure ur signed in with the exact same Google account u used for `firebase login`.
 click "get started by blah blah"
 <img width="1829" height="910" alt="image" src="https://github.com/user-attachments/assets/74afad29-19ba-4903-9669-10d57fad2b43" />
