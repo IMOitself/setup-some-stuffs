@@ -360,6 +360,7 @@ npm run deploy
 ```
 npm install -g firebase-tools
 ```
+(u might want to restart ur terminal or ide first)
 ```
 firebase login
 ```
@@ -387,6 +388,65 @@ when it asks:
 ```
 firebase deploy --only hosting
 ```
+</details>
+
+<details>
+
+<summary><h1>deploy laravel to google cloud</h1></summary>
+
+```diff
+- [!CAUTION]
+- discontinued :>
+- i dont have a credit card so i cant test
+```
+
+install [gcloud CLI](https://cloud.google.com/sdk/docs/install)
+
+scroll down past the `Before You Begin`. ignore it for now.
+<img width="1564" height="644" alt="install-gcloud" src="https://github.com/user-attachments/assets/2d083e8e-ab15-4628-87e6-3e8a4ddd9d3b" />
+<img width="581" height="477" alt="Screenshot 2026-09-10 143113" src="https://github.com/user-attachments/assets/0286492e-4b46-42fd-a94d-0c3a5532bc0a" />
+
+a terminal will be opened. if not open a terminal then do `gcloud init`:
+<img width="1088" height="398" alt="Screenshot 2026-09-10 143333" src="https://github.com/user-attachments/assets/d0900812-29e5-4e58-96de-570d69951d8b" />
+
+when it asks:
+- sign in to continue? `yes`
+- pick cloud project to use: create new one or if u deployed react project using firebase select same project
+
+create a file named `Dockerfile` on ur laravel (backend) folder, paste this:
+```Dockerfile
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY . .
+RUN composer install --no-dev --optimize-autoloader
+
+FROM php:8.3-apache
+RUN docker-php-ext-install pdo pdo_mysql
+RUN a2enmod rewrite
+COPY --from=vendor /app /var/www/html
+WORKDIR /var/www/html
+RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf /etc/apache2/sites-enabled/000-default.conf \
+ && sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-enabled/000-default.conf \
+ && chown -R www-data:www-data storage bootstrap/cache
+EXPOSE 8080
+```
+
+go to https://console.cloud.google.com/billing
+
+(u can use google cloud for free. not free trial)
+
+click `Add billing account`
+
+to be continued...
+
+
+<!--
+run this (u might want to restart ur terminal or ide first):
+```ps1
+gcloud run deploy laravel-backend --source backend --region asia-southeast1 --allow-unauthenticated
+```
+-->
+
 </details>
 
 <details>
