@@ -440,6 +440,39 @@ after that select ur repo.
 - Language `Docker`
 
 
+copy this line from your laravel (backend) folder's .env file
+```env
+APP_KEY=
+```
+
+go to the `Environment` tab and add it. <br>(just paste it on the `NAME_OF_VARIABLE` it will auto seperate it)
+
+**Render's free Postgres only lasts 30 days then deletes your data.<br>
+so lets use supabase because we are broke.**
+
+so go to [supabase.com](https://supabase.com/) → sign up → New Organization
+
+set a DB password, pick a region → create
+
+click the green connect button thingy on top.
+
+<img width="935" height="322" alt="Screenshot 2026-09-10 162253" src="https://github.com/user-attachments/assets/d0646cb1-e7b2-4786-8079-38672ff5e69e" />
+
+<img width="878" height="548" alt="Screenshot 2026-09-10 162308" src="https://github.com/user-attachments/assets/644d8962-1e1b-4f5a-b219-c39ade5f1138" />
+
+In Render → Environment tab → add:
+```env
+DB_CONNECTION=pgsql
+DB_HOST=<from supabase>
+DB_PORT=5432
+DB_DATABASE=postgres
+DB_USERNAME=<from supabase>
+DB_PASSWORD=<from supabase>
+```
+
+connect the dots or something idk. im too lazy to write it.<br>
+i recommend pasting the code above then edit all the `<from supabase>`.<br>
+also the password is what u entered earlier.
 
 </details>
 
