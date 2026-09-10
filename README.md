@@ -402,7 +402,8 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 FROM php:8.4-apache
-RUN docker-php-ext-install pdo pdo_mysql
+RUN apt-get update && apt-get install -y libpq-dev \
+ && docker-php-ext-install pdo pdo_pgsql
 RUN a2enmod rewrite
 COPY --from=vendor /app /var/www/html
 WORKDIR /var/www/html
@@ -410,6 +411,7 @@ RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf /etc/apache2/sites-enabled/000-
  && sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-enabled/000-default.conf \
  && chown -R www-data:www-data storage bootstrap/cache
 EXPOSE 8080
+CMD php artisan migrate:fresh --seed --force && apache2-foreground
 ```
 
 commit and push it on ur repo.
@@ -458,7 +460,10 @@ click the green connect button thingy on top.
 
 <img width="935" height="322" alt="Screenshot 2026-09-10 162253" src="https://github.com/user-attachments/assets/d0646cb1-e7b2-4786-8079-38672ff5e69e" />
 
-<img width="878" height="548" alt="Screenshot 2026-09-10 162308" src="https://github.com/user-attachments/assets/644d8962-1e1b-4f5a-b219-c39ade5f1138" />
+<img width="906" height="430" alt="image" src="https://github.com/user-attachments/assets/9517f108-2dbc-469e-af0e-ae96eb649e39" />
+
+<img width="882" height="548" alt="Screenshot 2026-09-10 171242" src="https://github.com/user-attachments/assets/41250afa-dba4-4cb2-8870-3b7a6bb6a658" />
+
 
 In Render → Environment tab → add:
 ```env
