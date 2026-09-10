@@ -392,6 +392,59 @@ firebase deploy --only hosting
 
 <details>
 
+<summary><h1>deploy laravel to render</h1></summary>
+
+create a file named `Dockerfile` on ur laravel (backend) folder, paste this:
+```Dockerfile
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY . .
+RUN composer install --no-dev --optimize-autoloader
+
+FROM php:8.3-apache
+RUN docker-php-ext-install pdo pdo_mysql
+RUN a2enmod rewrite
+COPY --from=vendor /app /var/www/html
+WORKDIR /var/www/html
+RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf /etc/apache2/sites-enabled/000-default.conf \
+ && sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-enabled/000-default.conf \
+ && chown -R www-data:www-data storage bootstrap/cache
+EXPOSE 8080
+```
+
+commit and push it on ur repo.
+
+go to [render.com](https://render.com/)
+
+sign up with GitHub
+
+find the `+ New` then `Web Service`.
+
+find this `Credentials` button:
+
+<img width="417" height="398" alt="Screenshot 2026-09-10 151524" src="https://github.com/user-attachments/assets/e81872cf-931d-487b-8847-dc88a0a11346" />
+
+after clicking the thing:
+
+<img width="361" height="67" alt="Screenshot 2026-09-10 151846" src="https://github.com/user-attachments/assets/3085ffc8-cff6-472d-8dd2-b9ad47b7c1ef" />
+
+then i recommend selecting `Only select repositories`
+
+<img width="617" height="306" alt="Screenshot 2026-09-10 151945" src="https://github.com/user-attachments/assets/d6c77057-de5f-4953-ade6-0b71a674638e" />
+
+
+after that select ur repo.
+
+- Region: closest to you `(Singapore)`
+- Root Directory: if ur backend is on a subfolder specify it. <br>ex. `backend` (the Dockerfile should be in this folder)
+- Language `Docker`
+
+
+
+</details>
+
+<details>
+
 <summary><h1>deploy laravel to google cloud</h1></summary>
 
 ```diff
