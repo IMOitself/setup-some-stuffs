@@ -381,8 +381,9 @@ firebase init hosting
 when it asks:
 - select existing project
 - set public directory to `dist` (or `build` if ur not using vite)
-- configure as a single-page app: yes
-- set up automatic builds with GitHub: no (unless u want that)
+- configure as a single-page app: `yes`
+- set up automatic builds with GitHub: `no` (unless u want that)
+- file dist\index.html already exists. Overwrite? `no`
 ```
 firebase deploy --only hosting
 ```
