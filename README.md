@@ -62,13 +62,40 @@ npm install tailwindcss @tailwindcss/vite
 ```
 
 `vite.config.js`
-```js
+```diff
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
++ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
++  plugins: [react(), tailwindcss()],
+})
+```
+
+`src/index.css`:
+```css
+@import "tailwindcss";
+```
+
+</details>
+
+<details>
+<summary><h1>setup shadcn on react</h1></summary>
+
+if ur using vite:
+
+```bash
+npm install tailwindcss @tailwindcss/vite
+```
+
+`vite.config.js`
+```diff
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
++ import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
++  plugins: [react(), tailwindcss()],
 })
 ```
 
@@ -83,7 +110,7 @@ export default defineConfig({
 <summary><h1>setup routes on react</h1></summary>
 
 ```bash
-npm install react-router-dom
+npm install react-router
 ```
 
 wrap your app with `<BrowserRouter>`
@@ -91,7 +118,7 @@ wrap your app with `<BrowserRouter>`
 ```jsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 import App from "./App";
 
 createRoot(document.getElementById("root")).render(
@@ -105,7 +132,7 @@ createRoot(document.getElementById("root")).render(
 
 `App.jsx`
 ```jsx
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router";
 import Home from "./pages/Home";
 import About from "./pages/About";
 
@@ -123,7 +150,7 @@ export default App;
 
 navigate between them ex:
 ```jsx
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 function Home() {
   return (
