@@ -82,26 +82,39 @@ export default defineConfig({
 <details>
 <summary><h1>setup shadcn on react</h1></summary>
 
-if ur using vite:
+ensure u installed tailwind.
 
-```bash
-npm install tailwindcss @tailwindcss/vite
+create file:
+`jsconfig.json`
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
 ```
 
 `vite.config.js`
 ```diff
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-+ import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
 
+// https://vite.dev/config/
 export default defineConfig({
 +  plugins: [react(), tailwindcss()],
-})
++  resolve: {
++    alias: {
++      "@": path.resolve(__dirname, "./src"),
++    },
++  },
++})
 ```
 
-`src/index.css`:
-```css
-@import "tailwindcss";
+```bash
+npx shadcn@latest init
 ```
 
 </details>
